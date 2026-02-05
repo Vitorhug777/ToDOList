@@ -62,6 +62,7 @@ dependencies {
     implementation(libs.firebase.auth)
     implementation(libs.firebase.crashlytics.buildtools)
     implementation(libs.androidx.compose.runtime.livedata)
+    implementation(libs.androidx.lifecycle.viewmodel.ktx)
     ksp(libs.hilt.compiler)
     implementation("androidx.compose.runtime:runtime-livedata:1.7.0") // Use a versão mais atual
     // Room
@@ -71,6 +72,13 @@ dependencies {
 
     // Navigation
     implementation(libs.androidx.navigation.compose)
+
+    implementation("androidx.navigation:navigation-compose:2.7.7")
+    implementation("androidx.compose.runtime:runtime-livedata:1.6.8")
+
+    // Firebase Authentication
+    implementation(platform("com.google.firebase:firebase-bom:33.1.1"))
+    implementation("com.google.firebase:firebase-auth")
 
     // Lifecycle
     implementation(libs.androidx.lifecycle.viewmodel.compose)
