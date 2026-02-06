@@ -4,8 +4,7 @@ plugins {
     alias(libs.plugins.ksp)
     alias(libs.plugins.compose.compiler)
     alias(libs.plugins.hilt.android)
-    alias(libs.plugins.google.services) // Agora vai funcionar!
-    kotlin("plugin.serialization") version libs.versions.kotlin
+    alias(libs.plugins.google.services)
 }
 
 android {
@@ -20,23 +19,10 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
-
-        // 1. Configuração de alinhamento para bibliotecas nativas (se existirem)
-        externalNativeBuild {
-            cmake {
-                cppFlags("-z max-page-size=16384")
-            }
-        }
     }
 
-    buildTypes {
-        release {
-            isMinifyEnabled = false
-            proguardFiles(
-                getDefaultProguardFile("proguard-android-optimize.txt"),
-                "proguard-rules.pro"
-            )
-        }
+    buildFeatures {
+        compose = true
     }
 
     compileOptions {
@@ -47,58 +33,37 @@ android {
     kotlinOptions {
         jvmTarget = "17"
     }
-
-    buildFeatures {
-        compose = true
-    }
-
-    packaging {
-        jniLibs {
-            // 2. Essencial para compatibilidade com Android 15+ (16 KB)
-            useLegacyPackaging = false
-        }
-    }
 }
 
 dependencies {
-    // Core e Compose (Usando os nomes do seu Version Catalog)
+    // Core e UI Compose
     implementation(libs.androidx.core.ktx)
-    implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.compose.ui)
-    implementation(libs.androidx.compose.ui.graphics)
-    implementation(libs.androidx.compose.ui.tooling.preview)
+    implementation(libs.androidx.compose.graphics)
     implementation(libs.androidx.compose.material3)
+    implementation(libs.androidx.navigation.compose)
 
-    // Essencial para o ViewModel funcionar com Compose
-    implementation(libs.androidx.lifecycle.viewmodel.compose)
-    implementation(libs.androidx.lifecycle.viewmodel.ktx)
+    // --- FERRAMENTAS DE PREVIEW (O que estava faltando) ---
+    implementation(libs.androidx.ui.tooling.preview)
+    implementation(libs.androidx.compose.runtime.livedata)
+    debugImplementation(libs.androidx.ui.tooling)
 
-    // Essencial para usar o 'by viewModels()' na Activity
-    implementation(libs.androidx.activity.compose)
-    // Firebase (Removido o 'buildtools' que causava o erro do dump_syms)
+    // Firebase
     implementation(platform(libs.firebase.bom))
     implementation(libs.firebase.auth)
+    implementation(libs.firebase.firestore)
 
-    // Estado e Ciclo de Vida (Deduplicado)
-    implementation(libs.androidx.compose.runtime.livedata)
-    implementation(libs.androidx.lifecycle.viewmodel.ktx)
-    implementation(libs.androidx.lifecycle.viewmodel.compose)
-    implementation(libs.androidx.lifecycle.runtime.compose)
-
-    // Room
-    implementation(libs.androidx.room.runtime)
-    ksp(libs.androidx.room.compiler)
-    implementation(libs.androidx.room.ktx)
-
-    // Navigation (Deduplicado)
-    implementation(libs.androidx.navigation.compose)
-    implementation(libs.kotlinx.serialization.json)
-
-    // Hilt
+    // Hilt (Injeção de Dependência)
     implementation(libs.hilt.android)
     ksp(libs.hilt.compiler)
+    implementation(libs.androidx.hilt.navigation.compose)
+
+    // Room (Banco de dados local)
+    implementation(libs.androidx.room.runtime)
+    implementation(libs.androidx.room.ktx)
+    ksp(libs.androidx.room.compiler)
 
     // Testes
     testImplementation(libs.junit)
@@ -106,6 +71,5 @@ dependencies {
     androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(platform(libs.androidx.compose.bom))
     androidTestImplementation(libs.androidx.compose.ui.test.junit4)
-    debugImplementation(libs.androidx.compose.ui.tooling)
     debugImplementation(libs.androidx.compose.ui.test.manifest)
 }
