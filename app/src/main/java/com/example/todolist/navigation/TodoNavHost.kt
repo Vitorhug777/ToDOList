@@ -1,11 +1,13 @@
 package com.example.todolist.navigation
 
 import androidx.compose.runtime.Composable
+import androidx.lifecycle.viewmodel.compose.viewModel // Importante para o viewModel()
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
 import com.example.todolist.viewmodel.AuthViewModel
+import com.example.todolist.viewmodel.ListViewModel // Importe o seu novo ViewModel
 import com.example.todolist.ui.pages.LoginPage
 import com.example.todolist.ui.pages.SignupPage
 import com.example.todolist.ui.feature.AddEdit.AddEditScreen
@@ -29,6 +31,9 @@ fun TodoNavHost(authViewModel: AuthViewModel) {
 
     val navController = rememberNavController()
 
+    // Instanciando o ListViewModel para ser usado na ListScreen
+    val listViewModel: ListViewModel = viewModel()
+
     NavHost(navController = navController, startDestination = LoginRoute) {
 
         composable<LoginRoute> {
@@ -47,8 +52,9 @@ fun TodoNavHost(authViewModel: AuthViewModel) {
 
         composable<ListRoute> {
             ListScreen(
-                authViewModel = authViewModel, // Corrigido para a variável minúscula
-                navController = navController,   // Adicionado para permitir o logout
+                authViewModel = authViewModel,
+                listViewModel = listViewModel, // ADICIONADO: Agora o parâmetro está preenchido
+                navController = navController,
                 navigateToAddEditScreen = { id ->
                     navController.navigate(AddEditRoute(id = id))
                 }
@@ -56,10 +62,12 @@ fun TodoNavHost(authViewModel: AuthViewModel) {
         }
 
         composable<AddEditRoute> { backStackEntry ->
-            // Se precisar do ID na tela AddEditScreen:
-            // val id = backStackEntry.toRoute<AddEditRoute>().id
+            // Se o seu AddEditScreen precisar do ID para editar, você pega assim:
+            val routeData = backStackEntry.toRoute<AddEditRoute>()
+
             AddEditScreen(
-                navigateBack = navController::popBackStack
+                // Passe o id para a tela se necessário: taskId = routeData.id,
+                navigateBack = { navController.popBackStack() }
             )
         }
     }
