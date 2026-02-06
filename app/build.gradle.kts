@@ -6,6 +6,7 @@ plugins {
     alias(libs.plugins.hilt.android)
     alias(libs.plugins.google.services)
     alias(libs.plugins.kotlin.serialization)
+
 }
 
 android {
@@ -37,6 +38,7 @@ android {
 
 dependencies {
     // Core e UI Compose
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.7.3")
     implementation("androidx.compose.material:material-icons-extended")
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.activity.compose)
