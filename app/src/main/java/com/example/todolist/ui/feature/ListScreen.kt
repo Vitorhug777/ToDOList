@@ -9,6 +9,8 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState // Importante para observar o Flow do Room
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
@@ -23,29 +25,39 @@ import com.example.todolist.ui.Components.TodoItem
 import com.example.todolist.ui.theme.ToDOListTheme
 import com.example.todolist.viewmodel.AuthState
 import com.example.todolist.viewmodel.AuthViewModel
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.collectAsState
+import com.example.todolist.viewmodel.ListViewModel
+
 
 @Composable
 fun ListScreen(
-    authViewModel: AuthViewModel, // Parâmetro para gerenciar login/logout
-    navController: NavController,  // Parâmetro para navegação
+    authViewModel: AuthViewModel,
+    listViewModel: ListViewModel, // Adicionado para buscar as tarefas do banco
+    navController: NavController,
     navigateToAddEditScreen: (id: Long?) -> Unit
 ) {
+    // Observa o estado de autenticação do Firebase
     val authState = authViewModel.authState.observeAsState()
 
-    // Lógica de Redirecionamento: Se o usuário deslogar, volta para a tela de Login
+    // Observa a lista de tarefas do banco de dados Room
+    val todos by listViewModel.todos.collectAsState(initial = emptyList())
+
+    // Redireciona para o Login se o usuário deslogar
     LaunchedEffect(authState.value) {
         if (authState.value is AuthState.Unauthenticated) {
             navController.navigate(LoginRoute) {
-                popUpTo(0) // Limpa o histórico para impedir o usuário de voltar
+                popUpTo(0)
             }
         }
     }
 
-    // Nota: Aqui você deve conectar o seu ViewModel de tarefas para substituir o 'emptyList()'
     ListContent(
-        todos = emptyList(), // Substitua pelos dados do seu Room/Database futuramente
+        todos = todos, // Agora usa a lista real do ViewModel
         onAddItemClick = navigateToAddEditScreen,
-        onSignOutClick = { authViewModel.signOut() } // Passa a ação de logout
+        onSignOutClick = { authViewModel.signOut() },
+        onToggleTodo = { listViewModel.adicionarTarefa(it) }, // Ação de marcar/desmarcar
+        onDeleteTodo = { listViewModel.deletarTarefa(it) }  // Ação de excluir
     )
 }
 
@@ -54,14 +66,15 @@ fun ListScreen(
 fun ListContent(
     todos: List<ToDo>,
     onAddItemClick: (id: Long?) -> Unit,
-    onSignOutClick: () -> Unit // Nova ação para o botão da barra superior
+    onSignOutClick: () -> Unit,
+    onToggleTodo: (ToDo) -> Unit,
+    onDeleteTodo: (ToDo) -> Unit
 ) {
     Scaffold(
         topBar = {
             TopAppBar(
                 title = { Text("Minhas Tarefas") },
                 actions = {
-                    // Botão de Sair na TopAppBar conforme orientado no vídeo
                     IconButton(onClick = onSignOutClick) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ExitToApp,
@@ -77,23 +90,34 @@ fun ListContent(
             }
         }
     ) { paddingValues ->
-        LazyColumn(
-            modifier = Modifier
-                .padding(paddingValues)
-                .consumeWindowInsets(paddingValues)
-                .fillMaxSize(),
-            contentPadding = PaddingValues(16.dp)
-        ) {
-            itemsIndexed(todos) { index, todo ->
-                TodoItem(
-                    toDo = todo,
-                    onCompletedChange = {},
-                    onitemClick = { onAddItemClick(todo.id) },
-                    onDeleteClicked = {}
-                )
+        if (todos.isEmpty()) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(paddingValues),
+                contentAlignment = androidx.compose.ui.Alignment.Center
+            ) {
+                Text("Nenhuma tarefa encontrada.")
+            }
+        } else {
+            LazyColumn(
+                modifier = Modifier
+                    .padding(paddingValues)
+                    .consumeWindowInsets(paddingValues)
+                    .fillMaxSize(),
+                contentPadding = PaddingValues(16.dp)
+            ) {
+                itemsIndexed(todos) { index, todo ->
+                    TodoItem(
+                        toDo = todo,
+                        onCompletedChange = { onToggleTodo(todo) },
+                        onitemClick = { onAddItemClick(todo.id) },
+                        onDeleteClicked = { onDeleteTodo(todo) }
+                    )
 
-                if (index < todos.lastIndex) {
-                    Spacer(modifier = Modifier.height(8.dp))
+                    if (index < todos.lastIndex) {
+                        Spacer(modifier = Modifier.height(8.dp))
+                    }
                 }
             }
         }
@@ -107,7 +131,9 @@ private fun ListContentPreview() {
         ListContent(
             todos = listOf(ToDo1, ToDo2, ToDo3),
             onAddItemClick = {},
-            onSignOutClick = {}
+            onSignOutClick = {},
+            onToggleTodo = {},
+            onDeleteTodo = {}
         )
     }
 }

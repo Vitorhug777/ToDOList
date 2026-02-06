@@ -71,6 +71,12 @@ dependencies {
     implementation(libs.androidx.compose.ui.tooling.preview)
     implementation(libs.androidx.compose.material3)
 
+    // Essencial para o ViewModel funcionar com Compose
+    implementation(libs.androidx.lifecycle.viewmodel.compose)
+    implementation(libs.androidx.lifecycle.viewmodel.ktx)
+
+    // Essencial para usar o 'by viewModels()' na Activity
+    implementation(libs.androidx.activity.compose)
     // Firebase (Removido o 'buildtools' que causava o erro do dump_syms)
     implementation(platform(libs.firebase.bom))
     implementation(libs.firebase.auth)
