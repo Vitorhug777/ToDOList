@@ -111,7 +111,7 @@ fun ListContent(
                     TodoItem(
                         toDo = todo,
                         onCompletedChange = { onToggleTodo(todo) },
-                        onitemClick = { onAddItemClick(todo.id) },
+                        onitemClick = { onAddItemClick(todo.id.toLong()) },
                         onDeleteClicked = { onDeleteTodo(todo) }
                     )
 

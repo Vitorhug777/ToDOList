@@ -17,7 +17,6 @@ android {
         targetSdk = 36
         versionCode = 1
         versionName = "1.0"
-
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
@@ -39,15 +38,18 @@ dependencies {
     // Core e UI Compose
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.activity.compose)
+    implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.compose.ui)
     implementation(libs.androidx.compose.graphics)
     implementation(libs.androidx.compose.material3)
     implementation(libs.androidx.navigation.compose)
 
-    // --- FERRAMENTAS DE PREVIEW (O que estava faltando) ---
-    implementation(libs.androidx.ui.tooling.preview)
+    // LiveData (Essencial para o ListScreen.kt)
     implementation(libs.androidx.compose.runtime.livedata)
+
+    // Ferramentas de Design e Preview
+    implementation(libs.androidx.ui.tooling.preview)
     debugImplementation(libs.androidx.ui.tooling)
 
     // Firebase
@@ -60,7 +62,7 @@ dependencies {
     ksp(libs.hilt.compiler)
     implementation(libs.androidx.hilt.navigation.compose)
 
-    // Room (Banco de dados local)
+    // Room (Suporte Offline)
     implementation(libs.androidx.room.runtime)
     implementation(libs.androidx.room.ktx)
     ksp(libs.androidx.room.compiler)
