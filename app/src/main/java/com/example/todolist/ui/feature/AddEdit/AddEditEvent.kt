@@ -1,7 +1,0 @@
-package com.example.todolist.ui.feature.AddEdit
-
-interface AddEditEvent {
-    data class  TitleChanged(val title: String) : AddEditEvent
-    data class DescriptionChanged(val description: String) : AddEditEvent
-    data object Save: AddEditEvent
-}
